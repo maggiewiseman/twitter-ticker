@@ -4,40 +4,37 @@ const secrets = require('./secrets.json');
 
 function getNewsHeadlines() {
 
-    return new Promise((resolve, reject) => {
-        var newsOrgList = ['theonion', 'goodnewsnetwork', 'NatEnquirer'];
-        getAccessTokens(newsOrgList).then((tokens) => {
-            //now I have the access tokens, I need to send three requests - one to each news org
-            //mapping the list will make me a new array of promises.
-            var tweetPromiseArray = newsOrgList.map((org) => {
-                //each getTweets resolves the raw tweets which is an array of objects w/ tweet data
-                //when that is done, process the headlines
-                return getTweets(org, tokens).then((tweetData) => {
-                    return getHeadlines(org, tweetData);
+    var newsOrgList = ['theonion', 'goodnewsnetwork', 'NatEnquirer'];
+    return getAccessTokens().then((tokens) => {
+        //now I have the access tokens, I need to send three requests - one to each news org
+        //mapping the list will make me a new array of promises.
+        var tweetPromiseArray = newsOrgList.map((org) => {
+            //each getTweets resolves the raw tweets which is an array of objects w/ tweet data
+            //when that is done, process the headlines
+            return getTweets(org, tokens).then((tweetData) => {
+                return getHeadlines(org, tweetData);
 
-                });
             });
-
-
-            Promise.all(tweetPromiseArray).then((headlines) => {
-
-                //this should be an array of arrays so I need to concat and sort by date before resolving.
-                var merged = [].concat.apply([], headlines);
-
-                merged.sort(function(a,b) {
-                    let dateA = new Date(a.created);
-                    let dateB = new Date(b.created);
-
-                    return -1 * (dateA - dateB);
-                });
-
-                resolve(JSON.stringify(merged));
-            });
-
-        }).catch((e) => {
-            console.log(e);
-            reject(e);
         });
+
+
+        return Promise.all(tweetPromiseArray).then((headlines) => {
+
+            //this should be an array of arrays so I need to concat and sort by date before resolving.
+            var merged = [].concat.apply([], headlines);
+
+            merged.sort(function(a,b) {
+                let dateA = new Date(a.created);
+                let dateB = new Date(b.created);
+
+                return -1 * (dateA - dateB);
+            });
+
+            return JSON.stringify(merged);
+        });
+
+    }).catch((e) => {
+        console.log(e);
     });
 }
 
