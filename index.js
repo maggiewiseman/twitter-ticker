@@ -3,7 +3,7 @@ const tweets = require('./tweetsPromise');
 const app = express();
 
 
-app.get('/headlines.json', (req, res) => {
+app.get('/headlines', (req, res) => {
 
     tweets.getNewsHeadlines().then((headlines) => {
         res.send(headlines);

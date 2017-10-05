@@ -36,7 +36,7 @@
     function getHeadlines(){
         console.log('in get headlines');
         $.ajax({
-            url: '/headlines.json',
+            url: '/headlines',
             method: 'GET',
             success: function(data) {
                 console.log(data);
